@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo">⚡</div>
+      <h1>WorkLens</h1>
+      <div class="subtitle">Activity Tracker</div>
+    </div>
+
+    <!-- Status Section -->
+    <div id="status" class="status inactive">
+      <div class="status-icon">●</div>
+      <div class="status-text">Not Tracking</div>
+    </div>
+
+    <!-- Current Activity -->
+    <div id="currentActivity" class="current-activity" style="display: none;">
+      <div class="label">Currently on:</div>
+      <div id="currentDomain" class="domain-name">-</div>
+      <div id="currentDuration" class="duration">0:00</div>
+    </div>
+
+    <!-- Employee Selection -->
+    <div class="section">
+      <label for="employeeSelect">Select Employee:</label>
+      <select id="employeeSelect" class="select">
+        <option value="">-- Select Employee --</option>
+      </select>
+    </div>
+
+    <!-- Today's Stats -->
+    <div id="todayStats" class="stats" style="display: none;">
+      <div class="stats-title">Today's Activity</div>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value" id="totalActivities">0</div>
+          <div class="stat-label">Activities</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value" id="productivityScore">0%</div>
+          <div class="stat-label">Productivity</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button id="startStopBtn" class="btn btn-primary">Start Tracking</button>
+      <button id="dashboardBtn" class="btn btn-secondary">Open Dashboard</button>
+    </div>
+
+    <!-- Info -->
+    <div class="info">
+      <div class="info-item">
+        <span class="info-icon">🔒</span>
+        <span>Privacy-focused tracking</span>
+      </div>
+      <div class="info-item">
+        <span class="info-icon">⚡</span>
+        <span>Real-time sync</span>
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -4,13 +4,14 @@ import { Download, TrendingUp, Activity, Users, Award } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
 import MobileNav from "@/components/MobileNav";
 import DepartmentComparison from "@/components/DepartmentComparison";
+import ActivityTrendChart from "@/components/ActivityTrendChart";
+import DailyActivityBarChart from "@/components/DailyActivityBarChart";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { toast } from "sonner";
 
 interface EmployeePerformance {
@@ -34,6 +35,8 @@ const Reports = () => {
   });
   const [employeePerformance, setEmployeePerformance] = useState<EmployeePerformance[]>([]);
   const [departmentData, setDepartmentData] = useState<any[]>([]);
+  const [trendData, setTrendData] = useState<any[]>([]);
+  const [dailyData, setDailyData] = useState<any[]>([]);
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -43,6 +46,38 @@ const Reports = () => {
     }
     fetchReportsData();
   }, [timeRange, navigate]);
+
+  const prepareChartData = (activities: any[]) => {
+    const dateMap: { [key: string]: { productive: number; unproductive: number; neutral: number; total: number } } = {};
+
+    activities.forEach((activity) => {
+      const date = new Date(activity.timestamp).toISOString().split("T")[0];
+      if (!dateMap[date]) {
+        dateMap[date] = { productive: 0, unproductive: 0, neutral: 0, total: 0 };
+      }
+      if (activity.category === "productive") dateMap[date].productive++;
+      else if (activity.category === "unproductive") dateMap[date].unproductive++;
+      else dateMap[date].neutral++;
+      dateMap[date].total++;
+    });
+
+    const sortedDates = Object.keys(dateMap).sort();
+    
+    const trendArray = sortedDates.slice(-30).map((date) => ({
+      date: new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      productive: dateMap[date].productive,
+      unproductive: dateMap[date].unproductive,
+      neutral: dateMap[date].neutral,
+    }));
+
+    const dailyArray = sortedDates.slice(-14).map((date) => ({
+      date: new Date(date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      count: dateMap[date].total,
+    }));
+
+    setTrendData(trendArray);
+    setDailyData(dailyArray);
+  };
 
   const fetchReportsData = async () => {
     // Fetch all activities
@@ -59,6 +94,9 @@ const Reports = () => {
         totalActivities: activities.length,
         avgProductivity: avgProd,
       }));
+
+      // Prepare chart data
+      prepareChartData(activities);
     }
 
     // Fetch employees with their performance
@@ -237,6 +275,16 @@ const Reports = () => {
           />
         </div>
 
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-2">
+            <ActivityTrendChart data={trendData} />
+          </div>
+          <div className="lg:col-span-1">
+            <DailyActivityBarChart data={dailyData} />
+          </div>
+        </div>
+
         {/* Tabs for Performance and Department Comparison */}
         <Tabs defaultValue="performance" className="w-full">
           <TabsList className="mb-4">
@@ -250,47 +298,47 @@ const Reports = () => {
                 <CardTitle className="text-2xl">Employee Performance Rankings</CardTitle>
               </CardHeader>
               <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left p-4 font-semibold">Rank</th>
-                    <th className="text-left p-4 font-semibold">Employee</th>
-                    <th className="text-left p-4 font-semibold">Department</th>
-                    <th className="text-left p-4 font-semibold">Activities</th>
-                    <th className="text-left p-4 font-semibold">Productivity Score</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {employeePerformance.map((emp, index) => (
-                    <tr key={emp.id} className="border-b hover:bg-muted/50 transition-colors">
-                      <td className="p-4">
-                        <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm">
-                          {index + 1}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div>
-                          <p className="font-medium">{emp.name}</p>
-                          <p className="text-sm text-muted-foreground">{emp.employee_code}</p>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <Badge variant="secondary">{emp.department}</Badge>
-                      </td>
-                      <td className="p-4 font-medium">{emp.activities}</td>
-                      <td className="p-4">
-                        <span className={`font-bold text-lg ${getScoreColor(emp.productivityScore)}`}>
-                          {emp.productivityScore}%
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left p-4 font-semibold">Rank</th>
+                        <th className="text-left p-4 font-semibold">Employee</th>
+                        <th className="text-left p-4 font-semibold">Department</th>
+                        <th className="text-left p-4 font-semibold">Activities</th>
+                        <th className="text-left p-4 font-semibold">Productivity Score</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {employeePerformance.map((emp, index) => (
+                        <tr key={emp.id} className="border-b hover:bg-muted/50 transition-colors">
+                          <td className="p-4">
+                            <div className="w-8 h-8 rounded-full gradient-primary flex items-center justify-center text-white font-bold text-sm">
+                              {index + 1}
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <div>
+                              <p className="font-medium">{emp.name}</p>
+                              <p className="text-sm text-muted-foreground">{emp.employee_code}</p>
+                            </div>
+                          </td>
+                          <td className="p-4">
+                            <Badge variant="secondary">{emp.department}</Badge>
+                          </td>
+                          <td className="p-4 font-medium">{emp.activities}</td>
+                          <td className="p-4">
+                            <span className={`font-bold text-lg ${getScoreColor(emp.productivityScore)}`}>
+                              {emp.productivityScore}%
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="departments">
