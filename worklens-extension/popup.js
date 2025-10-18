@@ -176,7 +176,7 @@ function startStatusUpdater() {
 }
 
 function openDashboard() {
-  chrome.tabs.create({ url: 'http://localhost:8080/dashboard' });
+  chrome.tabs.create({ url: 'https://worklens-productivity-analytics.vercel.app/dashboard' });
 }
 
 document.addEventListener('DOMContentLoaded', init);
