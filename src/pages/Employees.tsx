@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Search, Plus, Eye, Trash2 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
+import MobileNav from "@/components/MobileNav";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -94,8 +95,9 @@ const Employees = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <MobileNav />
       <Sidebar />
-      <div className="ml-64 p-8">
+      <div className="lg:ml-64 p-8 pt-20 lg:pt-8">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">Employees</h1>

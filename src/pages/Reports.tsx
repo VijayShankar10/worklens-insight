@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Download, TrendingUp, Activity, Users, Award } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
+import MobileNav from "@/components/MobileNav";
+import DepartmentComparison from "@/components/DepartmentComparison";
 import StatCard from "@/components/StatCard";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, BarChart, Bar } from "recharts";
 import { toast } from "sonner";
@@ -22,6 +25,7 @@ interface EmployeePerformance {
 const Reports = () => {
   const navigate = useNavigate();
   const [timeRange, setTimeRange] = useState(7);
+  const [aggregation, setAggregation] = useState<"daily" | "weekly" | "monthly">("daily");
   const [stats, setStats] = useState({
     totalActivities: 0,
     avgProductivity: 0,
@@ -29,6 +33,7 @@ const Reports = () => {
     topPerformer: "",
   });
   const [employeePerformance, setEmployeePerformance] = useState<EmployeePerformance[]>([]);
+  const [departmentData, setDepartmentData] = useState<any[]>([]);
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -96,6 +101,37 @@ const Reports = () => {
           topPerformer: sorted[0].name,
         }));
       }
+
+      // Calculate department data
+      const deptMap: { [key: string]: { activities: number; productive: number; employees: Set<string> } } = {};
+      
+      await Promise.all(
+        employees.map(async (emp) => {
+          if (!deptMap[emp.department]) {
+            deptMap[emp.department] = { activities: 0, productive: 0, employees: new Set() };
+          }
+          deptMap[emp.department].employees.add(emp.id);
+
+          const { data: empAct } = await supabase
+            .from("activities")
+            .select("category")
+            .eq("employee_id", emp.id);
+
+          if (empAct) {
+            deptMap[emp.department].activities += empAct.length;
+            deptMap[emp.department].productive += empAct.filter((a) => a.category === "productive").length;
+          }
+        })
+      );
+
+      const deptArray = Object.entries(deptMap).map(([department, data]) => ({
+        department,
+        totalActivities: data.activities,
+        avgProductivity: data.activities > 0 ? Math.round((data.productive / data.activities) * 100) : 0,
+        employeeCount: data.employees.size,
+      }));
+
+      setDepartmentData(deptArray);
     }
   };
 
@@ -131,8 +167,9 @@ const Reports = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <MobileNav />
       <Sidebar />
-      <div className="ml-64 p-8">
+      <div className="lg:ml-64 p-8 pt-20 lg:pt-8">
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-4xl font-bold mb-2">Reports & Analytics</h1>
@@ -144,18 +181,32 @@ const Reports = () => {
           </Button>
         </div>
 
-        {/* Time Range Buttons */}
-        <div className="flex gap-2 mb-8">
-          {[7, 30, 90].map((days) => (
-            <Button
-              key={days}
-              variant={timeRange === days ? "default" : "outline"}
-              onClick={() => setTimeRange(days)}
-              className={timeRange === days ? "gradient-primary text-white" : ""}
-            >
-              LAST {days} DAYS
-            </Button>
-          ))}
+        {/* Time Range and Aggregation Controls */}
+        <div className="flex flex-col md:flex-row gap-4 mb-8">
+          <div className="flex gap-2">
+            {[7, 30, 90].map((days) => (
+              <Button
+                key={days}
+                variant={timeRange === days ? "default" : "outline"}
+                onClick={() => setTimeRange(days)}
+                className={timeRange === days ? "gradient-primary text-white" : ""}
+              >
+                LAST {days} DAYS
+              </Button>
+            ))}
+          </div>
+          <div className="flex gap-2">
+            {(["daily", "weekly", "monthly"] as const).map((agg) => (
+              <Button
+                key={agg}
+                variant={aggregation === agg ? "default" : "outline"}
+                onClick={() => setAggregation(agg)}
+                className={aggregation === agg ? "gradient-info text-white" : ""}
+              >
+                {agg.toUpperCase()}
+              </Button>
+            ))}
+          </div>
         </div>
 
         {/* Summary Cards */}
@@ -186,12 +237,19 @@ const Reports = () => {
           />
         </div>
 
-        {/* Employee Performance Table */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-2xl">Employee Performance Rankings</CardTitle>
-          </CardHeader>
-          <CardContent>
+        {/* Tabs for Performance and Department Comparison */}
+        <Tabs defaultValue="performance" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="performance">Employee Performance</TabsTrigger>
+            <TabsTrigger value="departments">Department Comparison</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="performance">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl">Employee Performance Rankings</CardTitle>
+              </CardHeader>
+              <CardContent>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead>
@@ -233,6 +291,12 @@ const Reports = () => {
             </div>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="departments">
+            <DepartmentComparison data={departmentData} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

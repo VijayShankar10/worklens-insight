@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ArrowLeft, Activity, TrendingUp } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
+import MobileNav from "@/components/MobileNav";
 import StatCard from "@/components/StatCard";
+import ActivityHeatmap from "@/components/ActivityHeatmap";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -40,6 +42,7 @@ const EmployeeDetail = () => {
     neutral: 0,
     productivityScore: 0,
   });
+  const [heatmapData, setHeatmapData] = useState<{ date: string; count: number }[]>([]);
 
   useEffect(() => {
     const isAuth = localStorage.getItem("isAuthenticated");
@@ -64,7 +67,14 @@ const EmployeeDetail = () => {
       setEmployee(empData);
     }
 
-    // Fetch activities
+    // Fetch all activities for this employee
+    const { data: allActData } = await supabase
+      .from("activities")
+      .select("*")
+      .eq("employee_id", id)
+      .order("timestamp", { ascending: false });
+
+    // Fetch recent activities for display
     const { data: actData } = await supabase
       .from("activities")
       .select("*")
@@ -74,11 +84,13 @@ const EmployeeDetail = () => {
 
     if (actData) {
       setActivities(actData);
+    }
 
-      const productive = actData.filter((a) => a.category === "productive").length;
-      const unproductive = actData.filter((a) => a.category === "unproductive").length;
-      const neutral = actData.filter((a) => a.category === "neutral").length;
-      const total = actData.length;
+    if (allActData) {
+      const productive = allActData.filter((a) => a.category === "productive").length;
+      const unproductive = allActData.filter((a) => a.category === "unproductive").length;
+      const neutral = allActData.filter((a) => a.category === "neutral").length;
+      const total = allActData.length;
       const score = total > 0 ? Math.round((productive / total) * 100) : 0;
 
       setStats({
@@ -88,6 +100,19 @@ const EmployeeDetail = () => {
         neutral,
         productivityScore: score,
       });
+
+      // Prepare heatmap data
+      const heatmap: { [key: string]: number } = {};
+      allActData.forEach((activity) => {
+        const date = new Date(activity.timestamp).toISOString().split("T")[0];
+        heatmap[date] = (heatmap[date] || 0) + 1;
+      });
+
+      const heatmapArray = Object.entries(heatmap).map(([date, count]) => ({
+        date,
+        count,
+      }));
+      setHeatmapData(heatmapArray);
     }
   };
 
@@ -112,8 +137,9 @@ const EmployeeDetail = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <MobileNav />
       <Sidebar />
-      <div className="ml-64 p-8">
+      <div className="lg:ml-64 p-8 pt-20 lg:pt-8">
         <Button
           variant="ghost"
           onClick={() => navigate("/employees")}
@@ -176,8 +202,11 @@ const EmployeeDetail = () => {
           />
         </div>
 
+        {/* Activity Heatmap */}
+        <ActivityHeatmap data={heatmapData} />
+
         {/* Charts and Activity Log */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Pie Chart */}
           <Card>
             <CardHeader>

@@ -22,7 +22,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 gradient-primary text-white shadow-2xl z-50">
+    <aside className="fixed left-0 top-0 h-screen w-64 gradient-primary text-white shadow-2xl z-50 hidden lg:block">
       <div className="flex flex-col h-full">
         {/* Logo */}
         <div className="p-6 border-b border-white/10">

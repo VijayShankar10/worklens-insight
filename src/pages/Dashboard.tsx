@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { Users, Activity as ActivityIcon, TrendingUp, BarChart3 } from "lucide-react";
 import Sidebar from "@/components/Sidebar";
+import MobileNav from "@/components/MobileNav";
+import RealtimeFeed from "@/components/RealtimeFeed";
 import StatCard from "@/components/StatCard";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,8 +66,9 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <MobileNav />
       <Sidebar />
-      <div className="ml-64 p-8">
+      <div className="lg:ml-64 p-8 pt-20 lg:pt-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">Dashboard Overview</h1>
           <p className="text-muted-foreground text-lg">
@@ -101,8 +104,13 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Employee Grid */}
-        <Card>
+        {/* Realtime Feed and Employee Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          <div className="lg:col-span-1">
+            <RealtimeFeed />
+          </div>
+          <div className="lg:col-span-2">
+            <Card>
           <CardHeader>
             <CardTitle className="text-2xl">Team Members</CardTitle>
           </CardHeader>
@@ -146,6 +154,8 @@ const Dashboard = () => {
             </div>
           </CardContent>
         </Card>
+          </div>
+        </div>
       </div>
     </div>
   );
