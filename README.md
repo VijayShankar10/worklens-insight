@@ -34,4 +34,4 @@ An enterprise-grade employee productivity analytics platform featuring automatic
 [Installation instructions]
 
 ---
-Built with ❤️ for Final Year Project | Computer Science Engineering
+Final Year Project | Computer Science Engineering
