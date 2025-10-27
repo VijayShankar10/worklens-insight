@@ -22,13 +22,13 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 gradient-primary text-white shadow-2xl z-50 hidden lg:block">
+    <aside className="fixed left-0 top-0 h-screen w-64 bg-black text-white shadow-2xl z-50 hidden lg:block">
       <div className="flex flex-col h-full">
         {/* Logo */}
         <div className="p-6 border-b border-white/10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center">
-              <Activity className="w-6 h-6" />
+            <div className="w-10 h-10 rounded-lg bg-white/20 flex items-center justify-center overflow-hidden">
+              <img src="/logo.png" alt="WorkLens Logo" className="w-8 h-8 object-contain" />
             </div>
             <div>
               <h1 className="text-xl font-bold">WorkLens</h1>

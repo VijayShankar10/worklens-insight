@@ -34,8 +34,8 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-500 via-purple-600 to-purple-700 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-4">
-          <div className="w-16 h-16 bg-cyan-500 rounded-full mx-auto flex items-center justify-center">
-            <Activity className="w-8 h-8 text-white" />
+          <div className="w-16 h-16 mx-auto flex items-center justify-centern overflow-hidden">
+            <img src="/logo.png" alt="WorkLens Logo" className="w-10 h-10 object-contain" />
           </div>
           <CardTitle className="text-3xl font-bold">WorkLens</CardTitle>
           <p className="text-muted-foreground">

@@ -330,7 +330,6 @@ const EmployeeDetail = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-
           {/* Recent Activities */}
           <Card>
             <CardHeader>
@@ -406,7 +405,6 @@ const EmployeeDetail = () => {
             </CardContent>
           </Card>
         </div>
-
         {/* AI Insights */}
         {aiInsightsData && (
           <AIInsights employeeData={aiInsightsData} />
