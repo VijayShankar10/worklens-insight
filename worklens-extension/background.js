@@ -1,10 +1,7 @@
 const SUPABASE_URL = 'https://whkwafghefyrgirmywvb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indoa3dhZmdoZWZ5cmdpcm15d3ZiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA3OTY3ODQsImV4cCI6MjA3NjM3Mjc4NH0.MBN3CAp8Pfl6iL41q7O84OINpiz345Kpi5Jk-q6UnXo';
 // Works with both local and production
-const DASHBOARD_URL = window.location.hostname === 'localhost' 
-  ? 'http://localhost:8080' 
-  : 'https://worklens-productivity-analytics.vercel.app/';
-
+const DASHBOARD_URL = 'https://worklens-productivity-analytics.vercel.app/';
 
 // State management
 let currentTab = null;
