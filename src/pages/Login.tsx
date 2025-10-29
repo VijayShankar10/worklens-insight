@@ -19,7 +19,7 @@ const Login = () => {
     // Simple demo authentication
     // In production, this should call your backend API
     setTimeout(() => {
-      if (username === "admin" && password === "admin123") {
+      if (username === "admin" && password === "admin10") {
         localStorage.setItem("isAuthenticated", "true");
         toast.success("Login successful!");
         navigate("/dashboard");
@@ -81,20 +81,6 @@ const Login = () => {
             >
               {loading ? "Logging in..." : "Login"}
             </Button>
-
-            <div className="pt-4 border-t">
-              <p className="text-sm text-muted-foreground font-semibold mb-2">
-                Demo Credentials:
-              </p>
-              <div className="space-y-1 text-sm">
-                <p className="text-muted-foreground">
-                  Username: <span className="font-mono font-semibold text-foreground">admin</span>
-                </p>
-                <p className="text-muted-foreground">
-                  Password: <span className="font-mono font-semibold text-foreground">admin123</span>
-                </p>
-              </div>
-            </div>
           </form>
         </CardContent>
       </Card>
